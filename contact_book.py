@@ -1,5 +1,6 @@
 import json
 from rich.console import Console
+from rich.table import Table
 from contact import Contact
 
 
@@ -46,7 +47,23 @@ class ContactBook:
         self.save_contacts()
 
     def print_contacts(self):
-        pass
+        table = Table(title="[bold blue]Contacts Table")
+
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="magenta")
+        table.add_column("Phone", justify="right", style="green")
+        table.add_column("Email", style="blue")
+
+        self.load_contacts()
+        for contact in self.contacts:
+            table.add_row(
+                contact.contact_id,
+                contact.name,
+                contact.phone,
+                contact.email
+            )
+
+        self.console.print(table)
 
     def remove_contact(self):
         pass
@@ -65,4 +82,5 @@ class ContactBook:
             choice = input("> ")
             if choice == '1':
                 self.add_contact()
-            
+            elif choice == '2':
+                self.print_contacts()
