@@ -1,30 +1,15 @@
 import json
 from rich.console import Console
 from rich.table import Table
-from contact import Contact
+from contact_book.models.contact import Contact
+from contact_book.services.db import DB
 
 
 class ContactBook:
 
     def __init__(self):
         self.console = Console()
-        self.contacts: list[Contact] = []
-
-    def load_contacts(self):
-        with open('contacts.json') as jsonfile:
-            data_list = json.load(jsonfile)
-
-        self.contacts: list[Contact] = []
-        for data in data_list:
-            self.contacts.append(Contact.from_dict(data))
-
-    def save_contacts(self):
-        data = []
-        for contact in self.contacts:
-            data.append(contact.to_dict())
-
-        with open('contacts.json', 'w') as jsonfile:
-            json.dump(data, jsonfile, indent=4)
+        self.db = DB()
 
     def print_menu(self):
         self.console.print('[bold italic yellow on red blink]\n======== Menu ========')
@@ -43,9 +28,7 @@ class ContactBook:
         phone = input("Phone: ").strip()
         email = input("Email: ").strip()
 
-        self.load_contacts()
-        self.contacts.append(Contact(name, phone, email))
-        self.save_contacts()
+        self.db.add_contact(name, phone, email)
 
     def print_contacts(self):
         table = Table(title="[bold blue]Contacts Table")
@@ -55,8 +38,7 @@ class ContactBook:
         table.add_column("Phone", justify="right", style="green")
         table.add_column("Email", style="blue")
 
-        self.load_contacts()
-        for contact in self.contacts:
+        for contact in self.db.get_contacts():
             table.add_row(
                 contact.contact_id,
                 contact.name,
@@ -73,8 +55,6 @@ class ContactBook:
         pass
 
     def search_contact(self):
-        self.load_contacts()
-
         search = input("Search: ").strip().lower()
         
         table = Table(title="[bold blue]Found Contacts Table")
@@ -84,7 +64,7 @@ class ContactBook:
         table.add_column("Phone", justify="right", style="green")
         table.add_column("Email", style="blue")
 
-        for contact in self.contacts:
+        for contact in self.db.get_contacts():
             if search in contact.name.lower() or search in contact.email.lower() or search in contact.phone:
                 table.add_row(
                     contact.contact_id,
