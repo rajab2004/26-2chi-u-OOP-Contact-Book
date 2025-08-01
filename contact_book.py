@@ -14,6 +14,7 @@ class ContactBook:
         with open('contacts.json') as jsonfile:
             data_list = json.load(jsonfile)
 
+        self.contacts: list[Contact] = []
         for data in data_list:
             self.contacts.append(Contact.from_dict(data))
 
@@ -72,7 +73,27 @@ class ContactBook:
         pass
 
     def search_contact(self):
-        pass
+        self.load_contacts()
+
+        search = input("Search: ").strip().lower()
+        
+        table = Table(title="[bold blue]Found Contacts Table")
+
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="magenta")
+        table.add_column("Phone", justify="right", style="green")
+        table.add_column("Email", style="blue")
+
+        for contact in self.contacts:
+            if search in contact.name.lower() or search in contact.email.lower() or search in contact.phone:
+                table.add_row(
+                    contact.contact_id,
+                    contact.name,
+                    contact.phone,
+                    contact.email
+                )
+
+        self.console.print(table)
 
     def run(self):
         print("salom, Contact Book Projectga Xush Kelibsiz!")
@@ -84,3 +105,5 @@ class ContactBook:
                 self.add_contact()
             elif choice == '2':
                 self.print_contacts()
+            elif choice == '3':
+                self.search_contact()
